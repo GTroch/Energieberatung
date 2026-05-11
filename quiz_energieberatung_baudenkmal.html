@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz: Energieberatung für Baudenkmäler</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #0d4a4a;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .container {
+    background: #fff;
+    border-radius: 16px;
+    max-width: 800px;
+    width: 100%;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    overflow: hidden;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0d4a4a 0%, #1a7070 100%);
+    color: white;
+    padding: 28px 32px 20px;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .header-icon {
+    font-size: 2rem;
+  }
+  .header h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .header p {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    margin-top: 4px;
+  }
+
+  /* Progress bar */
+  .progress-area {
+    background: #f0f4f4;
+    padding: 14px 32px;
+    border-bottom: 1px solid #e0e8e8;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .progress-bar-wrap {
+    flex: 1;
+    background: #d0dede;
+    border-radius: 8px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #e8a000, #f4c033);
+    border-radius: 8px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .progress-text {
+    font-size: 0.82rem;
+    color: #555;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .score-badge {
+    background: #0d4a4a;
+    color: white;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* Question area */
+  .question-area {
+    padding: 32px 32px 24px;
+  }
+
+  .category-tag {
+    display: inline-block;
+    background: #e8f4f4;
+    color: #1a7070;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .question-number {
+    font-size: 0.78rem;
+    color: #999;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .question-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a2a2a;
+    line-height: 1.5;
+    margin-bottom: 26px;
+  }
+
+  /* Answer options */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-btn {
+    background: #f7fafa;
+    border: 2px solid #d8e8e8;
+    border-radius: 10px;
+    padding: 14px 18px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #2a3a3a;
+    transition: all 0.18s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    line-height: 1.4;
+  }
+  .option-btn:hover:not(:disabled) {
+    background: #e8f4f4;
+    border-color: #1a7070;
+    transform: translateX(2px);
+  }
+  .option-letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #d0e8e8;
+    color: #1a7070;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    transition: all 0.18s ease;
+  }
+  .option-btn:hover:not(:disabled) .option-letter {
+    background: #1a7070;
+    color: white;
+  }
+
+  /* Answer states */
+  .option-btn.correct {
+    background: #e8f8ee;
+    border-color: #28a745;
+    color: #1a5c2a;
+  }
+  .option-btn.correct .option-letter {
+    background: #28a745;
+    color: white;
+  }
+  .option-btn.wrong {
+    background: #fce8e8;
+    border-color: #dc3545;
+    color: #7a1a1a;
+  }
+  .option-btn.wrong .option-letter {
+    background: #dc3545;
+    color: white;
+  }
+  .option-btn.reveal {
+    background: #e8f8ee;
+    border-color: #28a745;
+    color: #1a5c2a;
+    opacity: 0.7;
+  }
+  .option-btn.reveal .option-letter {
+    background: #28a745;
+    color: white;
+  }
+  .option-btn:disabled {
+    cursor: default;
+  }
+
+  /* Feedback */
+  .feedback {
+    display: none;
+    margin-top: 18px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+  .feedback.correct-fb {
+    background: #e8f8ee;
+    border-left: 4px solid #28a745;
+    color: #1a5c2a;
+    display: block;
+  }
+  .feedback.wrong-fb {
+    background: #fce8e8;
+    border-left: 4px solid #dc3545;
+    color: #7a1a1a;
+    display: block;
+  }
+  .feedback-icon {
+    font-size: 1.1rem;
+    margin-right: 6px;
+  }
+
+  /* Navigation */
+  .nav-area {
+    padding: 0 32px 28px;
+  }
+  .next-btn {
+    display: none;
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #0d4a4a, #1a7070);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-top: 6px;
+  }
+  .next-btn:hover {
+    opacity: 0.88;
+  }
+
+  /* Result screen */
+  #result-screen {
+    display: none;
+    padding: 48px 32px;
+    text-align: center;
+  }
+  .result-icon {
+    font-size: 4rem;
+    margin-bottom: 16px;
+  }
+  .result-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #0d4a4a;
+    margin-bottom: 8px;
+  }
+  .result-score-big {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: #e8a000;
+    margin: 16px 0;
+  }
+  .result-text {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+  .result-grade {
+    display: inline-block;
+    background: #0d4a4a;
+    color: white;
+    border-radius: 12px;
+    padding: 10px 28px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+  }
+  .restart-btn {
+    padding: 14px 40px;
+    background: linear-gradient(135deg, #e8a000, #f4c033);
+    color: #0d4a4a;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .restart-btn:hover { opacity: 0.85; }
+
+  .category-stats {
+    text-align: left;
+    background: #f0f4f4;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 20px 0 28px;
+  }
+  .category-stats h3 {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .cat-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 7px;
+    font-size: 0.85rem;
+  }
+  .cat-name { flex: 1; color: #333; font-weight: 500; }
+  .cat-bar-wrap { width: 120px; background: #d8e8e8; border-radius: 4px; height: 8px; }
+  .cat-bar { height: 100%; border-radius: 4px; background: #1a7070; }
+  .cat-num { font-size: 0.8rem; color: #777; width: 40px; text-align: right; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="header-top">
+      <span class="header-icon">🏛️</span>
+      <h1>Energieberatung für Baudenkmäler</h1>
+    </div>
+    <p>Wohngebäude · Block 4 · Stephan Rothe · Campus-EW / Stiftung BauKulturerbe</p>
+  </div>
+
+  <div class="progress-area">
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <span class="progress-text" id="progress-text">Frage 1 von 100</span>
+    <span class="score-badge" id="score-badge">✓ 0</span>
+  </div>
+
+  <div id="quiz-screen">
+    <div class="question-area">
+      <div class="category-tag" id="category-tag"></div>
+      <div class="question-number" id="question-number"></div>
+      <div class="question-text" id="question-text"></div>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+    <div class="nav-area">
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">Nächste Frage →</button>
+    </div>
+  </div>
+
+  <div id="result-screen">
+    <div class="result-icon" id="result-icon"></div>
+    <div class="result-title">Auswertung</div>
+    <div class="result-score-big" id="result-score"></div>
+    <div class="result-grade" id="result-grade"></div>
+    <div class="result-text" id="result-text"></div>
+    <div class="category-stats" id="category-stats"></div>
+    <button class="restart-btn" onclick="restartQuiz()">🔄 Neu starten</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  // ─── BLOCK 1: Nutzungsanforderung und Nutzerverhalten (15 Fragen) ───
+  {
+    cat: "Nutzungsanforderung & Nutzerverhalten",
+    q: "Welche optimale Raumtemperatur wird für Wohnzimmer und Küche empfohlen?",
+    opts: ["16 bis 18 °C","19 bis 21 °C","22 bis 24 °C","25 bis 27 °C"],
+    a: 1,
+    expl: "Für ein gemütliches Raumklima in Wohnzimmer und Küche werden 19–21 °C empfohlen."
+  },
+  {
+    cat: "Nutzungsanforderung & Nutzerverhalten",
+    q: "Bei welcher Mindesttemperatur kann Feuchtigkeit kondensieren und Schimmel entstehen?",
+    opts: ["Unter 8 °C","Unter 10 °C","Unter 14–16 °C","Unter 18 °C"],
+    a: 2,
+    expl: "Temperaturen unter 14–16 °C sind zu meiden, da sonst Feuchtigkeit kondensiert und sich Schimmel bildet."
+  },
+  {
+    cat: "Nutzungsanforderung & Nutzerverhalten",
+    q: "Welche Raumtemperatur wird für ein angenehmes Schlafklima empfohlen?",
+    opts: ["14 °C","16 °C","18 °C","20 °C"],
+    a: 2,
+    expl: "Im Schlafzimmer sorgen ca. 18 °C für ein angenehmes Schlafklima."
+  },
+  {
+    cat: "Nutzungsanforderung & Nutzerverhalten",
+    q: "Was ist beim Baudenkmal ein 'wesentlicher Faktor' für die wahrgenommene Behaglichkeit neben der Lufttemperatur?",
+    opts: ["Die Luftfeuchtigkeit","Die Temperatur der umgebenden Oberflächen (Wandtemperatur)","Die Raumhöhe","Die Fensterflächengröße"],
+    a: 1,
+    expl: "Im Denkmal oder schützenswerten Bestand ist die Temperatur der Wandoberflächen ein wesentlicher Faktor – je kälter die Wand, desto wärmer muss die Luft sein."
+  },
+  {
+    cat: "Nutzungsanforderung & Nutzerverhalten",
+    q: "Wofür steht die Abkürzung SBS im Kontext der Gebäudequalität?",
+    opts: ["Schall-Brücken-System","Sick-Building-Syndrome","Sanierungsbedarfs-Schätzung","Schimmelbewertungs-Standard"],
+    a: 1,
+    expl: "SBS = Sick-Building-Syndrome, ein Begriff für gesundheitliche Beschwerden, die mit dem Aufenthalt in bestimmten Gebäuden in Verbindung gebracht werden."
+  },
+  {
+    cat: "Nutzungsanforderung & Nutzerverhalten",
+    q: "Was bedeutet BRI im Bereich der Gebäudegesundheit?",
+    opts: ["Baurecht-Richtlinie-Index","Bundesrecht Immobilien","Building-Related-Illness","Bilanzierungsrichtwert-Index"],
+    a: 2,
+    expl: "BRI = Building-Related-Illness, gebäudebezogene Erkrankungen, die durch die Raumluftqualität ausgelöst werden können."
+  },
+  {
+    cat: "Nutzungsanforderung & Nutzerverhalten",
+    q: "Welche DIN-Norm regelt die Nutzungsrandbedingungen für Wohn- und Nichtwohngebäude?",
+    opts: ["DIN EN 12831","DIN V 18599-10","DIN 4108","DIN EN 15978"],
+    a: 1,
+    expl: "Die Nutzungsrandbedingungen für Wohngebäude und Nichtwohngebäude sind in der Norm DIN V 18599-10 festgelegt."
+  },
+  {
+    cat: "Nutzungsanforderung & Nutzerverhalten",
+    q: "Welcher Parameter ist KEIN festgelegter Nutzungsrandparameter für Wohngebäude nach DIN V 18599-10?",
+    opts: ["Raum-Solltemperatur","Mindestaußenluftwechsel","Farbe der Außenfassade","Nutzwärmebedarf für Trinkwarmwasser"],
+    a: 2,
+    expl: "Die Farbe der Außenfassade ist kein Nutzungsrandparameter. Festgelegt werden u.a. Raum-Solltemperatur, Luftwechsel und Warmwasserbedarf."
+  },
+  {
+    cat: "Nutzungsanforderung & Nutzerverhalten",
+    q: "Was beschreibt die raumklimatische Bewertung historischer Grundrisse?",
+    opts: ["Die Beurteilung der Fassadengestaltung","Die energetische und klimatische Eignung der historischen Raumaufteilung","Die Prüfung der statischen Tragfähigkeit","Die Bewertung der Schallschutzwerte"],
+    a: 1,
+    expl: "Historische Grundrisse werden raumklimatisch bewertet, um ihre Eignung für heutige Nutzungsanforderungen zu beurteilen."
+  },
+  {
+    cat: "Nutzungsanforderung & Nutzerverhalten",
+    q: "Welchen Einfluss haben Baustoffe und Ausstattungsmaterialien auf die Raumluftqualität?",
+    opts: ["Keinen – nur Lüftungsanlagen bestimmen die Luftqualität","Einen signifikanten Einfluss, da gesundheitliche Probleme mit dem Einsatz von Baumaterialien zusammenhängen können","Nur neue Kunststoffe sind problematisch, historische Materialien sind immer unbedenklich","Nur bei feuchten Kellern relevant"],
+    a: 1,
+    expl: "Baustoffe und Ausstattungsmaterialien können einen signifikanten Einfluss auf die Innenraumluftqualität haben. Bei BRI können Ursachen direkt in einem verbauten Material liegen."
+  },
+  {
+    cat: "Nutzungsanforderung & Nutzerverhalten",
+    q: "Wie hoch darf die Anzahl der mit dem Temperaturniveau Unzufriedenen in einem gut klimatisierten Raum mindestens betragen?",
+    opts: ["0 %","Mindestens 5–15 %","Mindestens 30 %","Über 50 %"],
+    a: 1,
+    expl: "Raumklimatische Untersuchungen haben gezeigt, dass mindestens 5–15 % der Menschen unzufrieden sind, da individuelle Unterschiede immer bestehen."
+  },
+  {
+    cat: "Nutzungsanforderung & Nutzerverhalten",
+    q: "Welcher Faktor beeinflusst die 'empfundene Temperatur' besonders stark in Denkmälern?",
+    opts: ["Die Luftgeschwindigkeit allein","Die Wandoberflächentemperatur, die von der tatsächlichen Lufttemperatur abweichen kann","Die Luftfeuchtigkeit über 80 %","Die Raumgröße"],
+    a: 1,
+    expl: "Im Denkmal ist die Wandoberflächentemperatur ein wesentlicher Faktor der empfundenen Temperatur. Der Unterschied zwischen empfundener und tatsächlicher Temperatur wird hier besonders deutlich."
+  },
+  {
+    cat: "Nutzungsanforderung & Nutzerverhalten",
+    q: "Wozu dient ein Raumbuch bei der Beratung historischer Gebäude?",
+    opts: ["Es listet die Bücher in der Bibliothek des Gebäudes auf","Es dokumentiert alle Räume, Nutzungsarten und Befunde für alle Beteiligten","Es beschreibt die Außenflächen des Gebäudes","Es ist ein rechtlich verbindliches Dokument für den Kaufpreis"],
+    a: 1,
+    expl: "Das Raumbuch dient der Dokumentation: Plandarstellung lesen und Ergebnisse für alle Beteiligten dokumentieren."
+  },
+  {
+    cat: "Nutzungsanforderung & Nutzerverhalten",
+    q: "Welcher Feuchtigkeitsbereich wird für behagliche Luftfeuchte in Räumen allgemein als angemessen empfunden?",
+    opts: ["10–20 %","35–70 %","75–85 %","Über 90 %"],
+    a: 1,
+    expl: "Die behagliche Luftfeuchte liegt etwa zwischen 35 und 70 %, darunter oder darüber entstehen Komfortprobleme."
+  },
+  {
+    cat: "Nutzungsanforderung & Nutzerverhalten",
+    q: "Was sind 'Zonierungen und Zonen-Randbedingungen' bei historischen Gebäuden?",
+    opts: ["Die Abgrenzung von Denkmalbereichen nach Denkmalrecht","Die thermische und funktionale Einteilung der Gebäudebereiche mit unterschiedlichen Nutzungsanforderungen","Die Aufteilung von Grundstücksgrenzen","Die städtebauliche Einteilung in Wohn- und Mischgebiete"],
+    a: 1,
+    expl: "Zonierungen beschreiben die thermische und funktionale Einteilung eines Gebäudes in Bereiche mit unterschiedlichen Nutzungsanforderungen, z.B. beheizt/unbeheizt, Wohnbereich/Nebennutzung."
+  },
+
+  // ─── BLOCK 2: Standortbezogene Merkmale (13 Fragen) ───
+  {
+    cat: "Standortbezogene Merkmale",
+    q: "Welche der folgenden Punkte gehört zu den standortbezogenen Merkmalen bei Baudenkmälern?",
+    opts: ["Grundriss und Raumaufteilung","Städtebauliche Einbindung und Siedlungsstrukturen","U-Wert der Außenwand","Heizleistung der Anlage"],
+    a: 1,
+    expl: "Zu den standortbezogenen Merkmalen gehören u.a. städtebauliche Einbindung, Siedlungsstrukturen, Quartierslösungen und die Erfassung örtlicher Potenziale."
+  },
+  {
+    cat: "Standortbezogene Merkmale",
+    q: "Was beschreibt das 'Zwei-Fassaden-Prinzip' bei historischen Gebäuden?",
+    opts: ["Zwei unterschiedliche Fassadenfarben für Straßen- und Hofseite","Wärmedämmung und Wärmespeicherung als bauphysikalisches Prinzip mit zwei funktionalen Lagen","Zwei Fensterebenen übereinander","Die Nutzung von zwei verschiedenen Baumaterialien"],
+    a: 1,
+    expl: "Das Zwei-Fassaden-Prinzip steht für die bauphysikalische Wirkungsweise mit einer wärmespeichernden und einer wärmedämmenden Schicht."
+  },
+  {
+    cat: "Standortbezogene Merkmale",
+    q: "Welchen Vorteil bieten Quartierslösungen gegenüber Einzelgebäudelösungen?",
+    opts: ["Geringere Planungskosten für den Einzeleigentümer","Zentrale Beheizung, zentrale Infrastrukturversorgung, sparsamer Umgang mit Ressourcen","Keine Genehmigungspflicht durch das Denkmalamt","Höhere individuelle Gestaltungsfreiheit"],
+    a: 1,
+    expl: "Quartierslösungen ermöglichen zentrale Beheizung, zentrale Infrastrukturversorgung, geteilte Ver- und Entsorgung sowie einen sparsameren Umgang mit Ressourcen."
+  },
+  {
+    cat: "Standortbezogene Merkmale",
+    q: "Welche örtlichen Potenziale können bei der standortbezogenen Analyse erfasst werden?",
+    opts: ["Nur Solarenergie","Nur Biomasse","Potenziale von Energieträgern wie Solar, Erdwärme, Nahwärme usw.","Ausschließlich das Fernwärmenetz"],
+    a: 2,
+    expl: "Zu den örtlichen Potenzialen zählen z.B. Solarenergie, Erdwärme, Nahwärme und andere Energieträger, die am Standort verfügbar sind."
+  },
+  {
+    cat: "Standortbezogene Merkmale",
+    q: "Warum ist die 'Nachbarschaftsabhängigkeit' ein wichtiges Merkmal bei historischen Stadtstrukturen?",
+    opts: ["Weil Nachbarn die Genehmigungen erteilen","Weil aneinandergreifende Bebauungsstrukturen die Energiebilanz und Entscheidungsmöglichkeiten beeinflussen","Weil der Nachbar bei der Kostenübernahme haftet","Weil Nachbarn die Denkmalschutzauflagen festlegen"],
+    a: 1,
+    expl: "Bei gekoppelter Bebauungsstruktur (z.B. Reihenhäuser, Blockbebauung) ist die Energiebilanz und die Umsetzbarkeit von Maßnahmen nachbarschaftsabhängig."
+  },
+  {
+    cat: "Standortbezogene Merkmale",
+    q: "Was sind 'Nahwärmenetze im städtischen Zusammenhang' bei Baudenkmälern?",
+    opts: ["Fernwärmeleitungen mit über 100 km Länge","Lokale Wärmeversorgungsnetze innerhalb eines Stadtteils oder Quartiers, auch über Eigentumsgrenzen hinweg","Interne Rohrleitungen innerhalb eines Gebäudes","Systeme nur für Neubauten"],
+    a: 1,
+    expl: "Nahwärmenetze verbinden mehrere Gebäude eines Stadtteils und können auch über interne Eigentumsgrenzen (mehrere Gebäude eines Eigentümers) realisiert werden."
+  },
+  {
+    cat: "Standortbezogene Merkmale",
+    q: "Welche Norm regelt für Reihenhäuser, wie Gebäudetrennwände in der Bilanzierung behandelt werden?",
+    opts: ["DIN EN 12831","DIN V 18599","GEG §11 Absatz 2 – Trennwände als nicht wärmeübertragend","DIN 4108-2"],
+    a: 2,
+    expl: "Nach GEG §11 Absatz 2 dürfen die Gebäudetrennwände bei aneinandergereihten Gebäuden in der Bilanzierung als nicht wärmeübertragend angesehen werden."
+  },
+  {
+    cat: "Standortbezogene Merkmale",
+    q: "Welche technische FAQ-Referenz behandelt Mindestanforderungen nach GEG bei aneinandergereihter Bebauung?",
+    opts: ["DIN EN 832","Technische FAQ zur BEG 1.09","EnEV 2009","DIN 4109"],
+    a: 1,
+    expl: "Die Technische FAQ zur BEG 1.09 behandelt u.a. die Anforderungen nach GEG §11 Absatz 2 bei aneinandergereihter Bebauung."
+  },
+  {
+    cat: "Standortbezogene Merkmale",
+    q: "Was regelt GEG §109 in Verbindung mit dem WPG bei Bestandsgebäuden?",
+    opts: ["Die Förderhöhe für Sanierungsmaßnahmen","Den Anschlusszwang an leitungsgebundene Wärmeversorgung – für Neubau klar geregelt, für Bestand jedoch viele Gesetzeswiedersprüche","Die Mindestanforderungen an den U-Wert bei Renovierungen","Die Anerkennung historischer Baustoffe"],
+    a: 1,
+    expl: "GEG §109 regelt den Anschlusszwang. Für Neubau ist dies sehr klar geregelt, für Bestand bestehen hingegen viele Gesetzeswiedersprüche."
+  },
+  {
+    cat: "Standortbezogene Merkmale",
+    q: "Welchen Vorteil bietet die Nutzung von PV-Strom (Photovoltaik) in historischen Gebäuden?",
+    opts: ["PV-Strom ist bei Denkmälern grundsätzlich verboten","Eigenerzeugter PV-Strom kann den Eigenstrombedarf decken und die Energiekosten senken","PV hat keine Eignung für Wohngebäude","Nur Großanlagen auf Industriedächern sind wirtschaftlich"],
+    a: 1,
+    expl: "PV-Strom kann sinnvoll zur Eigenversorgung eingesetzt werden; die Frage 'PV-Strom – wofür nutzen?' ist bei Baudenkmalgebäuden ein wichtiger Planungspunkt."
+  },
+  {
+    cat: "Standortbezogene Merkmale",
+    q: "Was ist mit 'Erfassung der örtlichen Potenziale' als standortbezogenes Merkmal gemeint?",
+    opts: ["Zählen der Einwohner im Quartier","Kartieren und Bewerten lokal verfügbarer Energiequellen und Infrastrukturen","Bewertung der Parkplatzsituation","Katastervermessung"],
+    a: 1,
+    expl: "Die Erfassung örtlicher Potenziale bedeutet, lokal verfügbare Energieträger und Infrastrukturen (Solar, Nahwärme, Erdwärme usw.) zu kartieren und zu bewerten."
+  },
+  {
+    cat: "Standortbezogene Merkmale",
+    q: "Welches bauphysikalische Prinzip von historischen Massivwänden wird als 'Wärmespeicherung' bezeichnet?",
+    opts: ["Die Fähigkeit der Wand, Wärme schnell abzuleiten","Die Eigenschaft schwerer Baustoffe, Wärme aufzunehmen und zeitverzögert wieder abzugeben","Das Prinzip der Dampfsperre","Die Reflexion von Strahlungswärme"],
+    a: 1,
+    expl: "Historische Massivwände besitzen eine hohe Wärmespeicherfähigkeit: Sie nehmen Wärme auf und geben sie zeitverzögert wieder ab, was das Raumklima stabilisiert."
+  },
+  {
+    cat: "Standortbezogene Merkmale",
+    q: "Welches Planungswerkzeug wird bei der Erfassung von Größe, Lage und Gebäudeerschließung im Baudenkmal eingesetzt?",
+    opts: ["Nur freie Handskizze","Nur 3D-BIM-Modelle","Planungstools (Planungswerkzeuge) und Kartierungen","Ausschließlich Luftbilder"],
+    a: 2,
+    expl: "Für die Erfassung von Größe, Lage und Gebäudeerschließung werden Planungswerkzeuge genutzt, wie etwa Bestandspläne, Kartierungen und digitale Hilfsmittel."
+  },
+
+  // ─── BLOCK 3: Nutzungsbezogene Merkmale (12 Fragen) ───
+  {
+    cat: "Nutzungsbezogene Merkmale",
+    q: "Was wird unter 'historischer Nutzung' eines Denkmals im Kontext der Energieberatung verstanden?",
+    opts: ["Die Nutzung, die das Gebäude vor 100 Jahren hatte – ohne Relevanz für heutige Planung","Die ursprüngliche Funktion des Gebäudes, die Rückschlüsse auf Raumstrukturen und bauphysikalische Lösungen ermöglicht","Nur museale oder öffentliche Nutzungen","Die aktuelle Nutzung nach Umbau"],
+    a: 1,
+    expl: "Die historische Nutzung gibt wichtige Hinweise auf Raumstrukturen und die ursprünglichen bauphysikalischen Konzepte, die bei der Sanierung berücksichtigt werden sollten."
+  },
+  {
+    cat: "Nutzungsbezogene Merkmale",
+    q: "Was sind 'Nutzungszonen und Raumkonzepte' bei der Beratung historischer Gebäude?",
+    opts: ["Bereiche, die nur für technische Anlagen reserviert sind","Die funktionale und thermische Einteilung des Gebäudes in verschiedene Nutzungsbereiche","Die rechtliche Aufteilung in Eigentumswohnungen","Das Zonenmodell der Stadtplanung"],
+    a: 1,
+    expl: "Nutzungszonen umfassen die funktionale und thermische Einteilung – etwa Wohn- und Aufenthaltsbereiche, Nebennutzungsbereiche, unbeheizte Bereiche."
+  },
+  {
+    cat: "Nutzungsbezogene Merkmale",
+    q: "Welche Bereiche sind laut Lehrfolie bei der Grundrissanalyse eines Beispielprojekts zu differenzieren?",
+    opts: ["Nur Wohn- und Schlafbereiche","Erschließungszonen (Treppenhäuser, Flure), Wohn- und Aufenthaltsbereiche, Bereiche mit hoher Raumluftfeuchte, Nebennutzungs- und unbeheizte Bereiche","Nur Küche und Bad","Nur beheizte Räume"],
+    a: 1,
+    expl: "Die Grundrissanalyse differenziert u.a. Erschließungszonen, Wohn- und Aufenthaltsbereiche, Bereiche mit hoher Raumluftfeuchte, Nebennutzungsbereiche und unbeheizte Bereiche."
+  },
+  {
+    cat: "Nutzungsbezogene Merkmale",
+    q: "Was bedeutet 'historische Raumstruktur verstehen' für den Energieberater?",
+    opts: ["Nur die architektonische Schönheit bewundern","Die ursprüngliche Logik der Raumorganisation, Erschließung und klimatischen Zonierung nachvollziehen","Die Grundrisse ins Denkmalarchiv übertragen","Den historischen Heizwert berechnen"],
+    a: 1,
+    expl: "Das Verstehen der historischen Raumstruktur hilft dem Berater, die klimatische Logik des ursprünglichen Konzepts zu erkennen und sinnvoll weiterzuführen."
+  },
+  {
+    cat: "Nutzungsbezogene Merkmale",
+    q: "Welche 'historischen Lösungen zur Bauphysik' sind bei Denkmälern relevant?",
+    opts: ["Moderne Dämmplatten aus Polyurethan","Traditionelle Bauweisen wie massive Wände, natürliche Belüftung und kapillaraktive Putze","Ausschließlich chemische Imprägnierungen","Nur synthetische Dämmmaterialien"],
+    a: 1,
+    expl: "Historische Bauphysik umfasst Lösungen wie massive Wände mit Speicherfähigkeit, natürliche Belüftungskonzepte und kapillaraktive Putze."
+  },
+  {
+    cat: "Nutzungsbezogene Merkmale",
+    q: "Wie wird Sanierungspraxis nach dem Lehrgang dokumentiert?",
+    opts: ["Ausschließlich mündlich","Mithilfe von Plandarstellungen und dem Raumbuch, das Ergebnisse für alle Beteiligten festhält","Nur durch Fotos ohne Beschriftung","Durch einen kurzen Emailbericht"],
+    a: 1,
+    expl: "Die Plandarstellung wird gelesen und die Ergebnisse im Raumbuch für alle Beteiligten dokumentiert."
+  },
+  {
+    cat: "Nutzungsbezogene Merkmale",
+    q: "Was ist ein wichtiges Sanierungsbeispiel historischer Baukonstruktionen?",
+    opts: ["Vollständiger Abriss und Neubau hinter der Fassade","Erhalt und Ertüchtigung der historischen Substanz als 'neues Bauteil, bauphysikalisch stabil'","Einfaches Überputzen aller Schäden","Verkleidung aller Holzbalken mit Kunststoff"],
+    a: 1,
+    expl: "Die historische Wand wird als 'neues Bauteil' verstanden, das bauphysikalisch stabil gemacht wird – unter Erhalt der Substanz."
+  },
+  {
+    cat: "Nutzungsbezogene Merkmale",
+    q: "Welchen Aufbau zeigt ein beispielhafter Dämm-Aufbau an einer historischen Außenwand von innen nach außen?",
+    opts: ["Mineralwolle, Dampfsperre, Gipskarton","Lehmputz, Holzweichfaser (Putzträger), Brettsperrholz (BSP), Holzweichfaserdämmung, Latten (Hinterlüftung), Fassadenprofil","Styropor, Armierungsgewebe, Silikonputz","Gipskarton, Glaswolle, Dampffolie"],
+    a: 1,
+    expl: "Der Aufbau lautet: Lehmputz – Holzweichfaser (Putzträger) – Brettsperrholz (BSP) – Holzweichfaserdämmung – Latten (Hinterlüftung) – Fassadenprofil."
+  },
+  {
+    cat: "Nutzungsbezogene Merkmale",
+    q: "Warum wird Holzweichfaserdämmung bei Denkmälern bevorzugt?",
+    opts: ["Weil sie die kostengünstigste Lösung ist","Weil sie kapillaraktiv, dampfdiffusionsoffen und mit historischen Materialien verträglich ist","Weil sie die beste Wärmedämmung aller Materialien bietet","Nur weil sie optisch passend ist"],
+    a: 1,
+    expl: "Holzweichfaserdämmung ist kapillaraktiv, diffusionsoffen und gut verträglich mit historischen Baustoffen wie Lehmputz."
+  },
+  {
+    cat: "Nutzungsbezogene Merkmale",
+    q: "Was ist der Vorteil von Lehmputz als innenseitiger Abschluss einer Dämm-Konstruktion?",
+    opts: ["Er ist wasserbeständig und bildet eine Dampfsperre","Er reguliert die Raumfeuchte, ist diffusionsoffen und sortenrein trennbar","Er ist kostengünstiger als Gips","Er trocknet schneller als alle anderen Putze"],
+    a: 1,
+    expl: "Lehmputz reguliert die Raumfeuchte durch seine hygroskopischen Eigenschaften, ist diffusionsoffen und sortenrein trennbar."
+  },
+  {
+    cat: "Nutzungsbezogene Merkmale",
+    q: "Was ist Brettsperrholz (BSP) und welche Rolle spielt es in einem Sanierungsaufbau?",
+    opts: ["Ein modernes Kunststoffprodukt als Dampfsperre","Ein massiver Holzwerkstoff aus kreuzweise verleimten Brettern, der statische Stabilität und Dämmfunktion übernimmt","Eine Art Holzlack","Ein Fugenfüllmaterial"],
+    a: 1,
+    expl: "Brettsperrholz (BSP/CLT) besteht aus kreuzweise verleimten Holzlagen und übernimmt statische Aufgaben sowie eine aussteifende Funktion im Wandaufbau."
+  },
+  {
+    cat: "Nutzungsbezogene Merkmale",
+    q: "Welche Funktion hat die Hinterlüftung (Latten-Ebene) bei einem vorgehängten Fassadensystem?",
+    opts: ["Wärmedämmung","Ableitung von Feuchte und Verhindung von Tauwasserbildung hinter der Fassadenverkleidung","Schallschutz","Sicherung der Statik"],
+    a: 1,
+    expl: "Die Hinterlüftung leitet eindringende Feuchtigkeit ab und verhindert Tauwasserbildung hinter der Fassadenverkleidung."
+  },
+
+  // ─── BLOCK 4: Energetisches Nutzungskonzept (15 Fragen) ───
+  {
+    cat: "Energetisches Nutzungskonzept",
+    q: "Welche drei Hauptaspekte sind beim energetischen Nutzungskonzept für Baudenkmäler zu berücksichtigen?",
+    opts: ["Beton, Stahl, Glas","Licht, Luft und Schatten sowie Wärmebrücken und Materialien","Heizung, Lüftung, Sanitär","Fassade, Dach, Keller"],
+    a: 1,
+    expl: "Das energetische Nutzungskonzept umfasst insbesondere Licht (Belichtung), Luft (Lüftung), Schatten (Sonnenschutz), Wärmebrücken und die Wahl der Materialien."
+  },
+  {
+    cat: "Energetisches Nutzungskonzept",
+    q: "Was versteht man unter einer 'Wärmebrücke' in der Baukonstruktion?",
+    opts: ["Eine Brücke, die durch ein beheiztes Gebäude führt","Ein Bereich in der Gebäudehülle, an dem lokal erhöhter Wärmeverlust auftritt","Das Heizsystem im Keller","Ein wärmedämmender Übergang zwischen Bauteilen"],
+    a: 1,
+    expl: "Eine Wärmebrücke ist ein Bereich in der Gebäudehülle mit lokal erhöhtem Wärmeverlust und damit verbundenem Risiko von Oberflächenkondensation und Schimmel."
+  },
+  {
+    cat: "Energetisches Nutzungskonzept",
+    q: "Welche Aussage zum Anschlusszwang nach GEG §109 ist korrekt?",
+    opts: ["Für Neubau und Bestand gilt derselbe klar geregelte Anschlusszwang","Für Neubau ist der Anschlusszwang sehr klar geregelt, für den Bestand bestehen hingegen viele Gesetzeswiedersprüche","Es gibt keinen Anschlusszwang im GEG","Nur für öffentliche Gebäude gilt der Anschlusszwang"],
+    a: 1,
+    expl: "Nach GEG §109 ist der Anschlusszwang für Neubau sehr klar geregelt. Für Bestandsgebäude hingegen bestehen viele Gesetzeswiedersprüche."
+  },
+  {
+    cat: "Energetisches Nutzungskonzept",
+    q: "Welchen Zweck erfüllt ein energetisches Nutzungskonzept bei einem Baudenkmal?",
+    opts: ["Es ersetzt den Sanierungsplan","Es beschreibt, wie das Gebäude energetisch optimal genutzt werden kann unter Berücksichtigung des Denkmalschutzes","Es legt die Mietpreise fest","Es regelt nur die Heizungsanlage"],
+    a: 1,
+    expl: "Ein energetisches Nutzungskonzept beschreibt, wie das Gebäude energetisch optimal und denkmalverträglich genutzt werden kann."
+  },
+  {
+    cat: "Energetisches Nutzungskonzept",
+    q: "Warum ist natürliche Belichtung (Licht) ein wichtiger Aspekt im energetischen Konzept?",
+    opts: ["Weil Tageslicht gesetzlich vorgeschrieben ist","Weil gute Tageslichtnutzung den Kunstlichtbedarf und damit den Strombedarf reduziert","Nur für Denkmäler mit historischen Glasfenstern","Weil Licht ausschließlich ästhetische Bedeutung hat"],
+    a: 1,
+    expl: "Eine gute Tageslichtnutzung reduziert den Kunstlichtbedarf und damit den Strombedarf – ein wichtiger Beitrag zum energetischen Gesamtkonzept."
+  },
+  {
+    cat: "Energetisches Nutzungskonzept",
+    q: "Warum ist Lüftung (Luft) ein zentrales Thema im energetischen Konzept historischer Gebäude?",
+    opts: ["Weil historische Gebäude immer zu dicht sind","Weil eine ausreichende Lufterneuerung Feuchteprobleme verhindert und gleichzeitig Wärmeverluste minimiert werden müssen","Weil moderne Lüftungsgeräte Pflicht sind","Lüftung spielt keine Rolle in historischen Gebäuden"],
+    a: 1,
+    expl: "Ausreichende Lüftung verhindert Feuchteprobleme (Schimmel), während gleichzeitig die Wärmeverluste durch kontrollierte Lüftung minimiert werden müssen."
+  },
+  {
+    cat: "Energetisches Nutzungskonzept",
+    q: "Welche Rolle spielt Schatten im energetischen Konzept?",
+    opts: ["Schatten erhöht immer den Energiebedarf","Passiver Sonnenschutz (Schatten) reduziert die Überhitzung im Sommer und verbessert den Wohnkomfort","Schatten ist nur für Bürogebäude relevant","Schatten hat keine energetische Bedeutung"],
+    a: 1,
+    expl: "Passiver Sonnenschutz vermeidet Überhitzung im Sommer, reduziert den Kühlbedarf und verbessert den Wohnkomfort."
+  },
+  {
+    cat: "Energetisches Nutzungskonzept",
+    q: "Welche Materialien sind bei einem energetischen Konzept für Baudenkmäler besonders zu berücksichtigen?",
+    opts: ["Nur Kunststoffmaterialien","Nur Metalle","Denkmalverträgliche, diffusionsoffene Materialien wie Holz, Lehm, Kalk und Holzweichfaser","Ausschließlich Zement und Beton"],
+    a: 2,
+    expl: "Denkmalverträgliche Materialien wie Holz, Lehm, Kalk und Holzweichfaser sind bei historischen Gebäuden zu bevorzugen, da sie dampfdiffusionsoffen sind und die historische Substanz schützen."
+  },
+  {
+    cat: "Energetisches Nutzungskonzept",
+    q: "Was ist der Unterschied zwischen einem 'Anspruch der Veranstaltung' bei der Beratung von Baudenkmälern gegenüber der Normalberatung?",
+    opts: ["Es gibt keinen Unterschied","Unterschied in der Eingangsbetrachtung: Respekt vor der alten Bausubstanz, besondere Betrachtung der Denkmaleigenschaften, Einbeziehen von Drittexperten, geänderte Gewichtung der Zielvorgaben","Denkmäler benötigen keine Energieberatung","Baudenkmäler folgen ausschließlich ästhetischen Gesichtspunkten"],
+    a: 1,
+    expl: "Die Beratung von Denkmälern unterscheidet sich durch: Respekt vor der alten Bausubstanz, Besonderheiten der Betrachtung, Einbeziehen von Drittexperten und geänderte Gewichtung der Zielvorgaben."
+  },
+  {
+    cat: "Energetisches Nutzungskonzept",
+    q: "Welche Anforderung stellt DIN V 18599-10 für die Bilanzierung von Wohngebäuden bezüglich der Randbedingungen?",
+    opts: ["Die Randbedingungen sind frei wählbar","Bei öffentlich-rechtlichen Nachweisen sind die Standardrandbedingungen zwingend zu verwenden; Abweichungen müssen dokumentiert werden","Die Norm gilt nur für Neubauten","Die Randbedingungen werden vom Energieversorger vorgegeben"],
+    a: 1,
+    expl: "Bei öffentlich-rechtlichen Nachweisen nach DIN V 18599 sind die Standardrandbedingungen zu verwenden. Weichen die realen Bedingungen ab, sind sie anzupassen und zu dokumentieren."
+  },
+  {
+    cat: "Energetisches Nutzungskonzept",
+    q: "Was ist der 'Abminderungsfaktor infolge Verschmutzung' als Nutzungsrandparameter?",
+    opts: ["Ein Faktor für die Reinigungskosten","Ein Korrekturfaktor für die solare Einstrahlung, der die Verminderung durch Verschmutzung von Fensterflächen berücksichtigt","Ein Luftqualitätsindex","Ein Korrosionsfaktor für Metallelemente"],
+    a: 1,
+    expl: "Der Abminderungsfaktor infolge Verschmutzung korrigiert die nutzbare solare Einstrahlung durch Schmutz auf Glasflächen."
+  },
+  {
+    cat: "Energetisches Nutzungskonzept",
+    q: "Welche Aussage zu 'Wärmebrücken im Denkmal oder schützenswerten Bestand' ist richtig?",
+    opts: ["Wärmebrücken können bei Denkmälern immer einfach beseitigt werden","Wärmebrücken sind im Denkmal ein wesentlicher Faktor für das Raumklima, da kalte Oberflächen die gefühlte Temperatur senken und Kondensation begünstigen","Wärmebrücken haben keine Auswirkungen auf das Raumklima","Wärmebrücken sind nur bei Neubauten relevant"],
+    a: 1,
+    expl: "Im Denkmal sind Wärmebrücken ein wesentlicher Faktor: Kalte Wandoberflächen senken die gefühlte Temperatur und begünstigen Feuchteprobleme."
+  },
+  {
+    cat: "Energetisches Nutzungskonzept",
+    q: "Welchen Bereich deckt der Kurs 'Energieberatung für Baudenkmale – Wohngebäude' ab?",
+    opts: ["Nur Neubauten im historischen Stil","Wohngebäude unter Denkmalschutz oder in schützenswerten Bereichen","Ausschließlich öffentliche Gebäude","Nur Kirchen und Klöster"],
+    a: 1,
+    expl: "Der Lehrgang behandelt explizit Wohngebäude, die unter Denkmalschutz stehen oder in schützenswerten Bereichen liegen."
+  },
+  {
+    cat: "Energetisches Nutzungskonzept",
+    q: "Was ist die Bedeutung von 'Respekt vor der alten Bausubstanz' in der Energieberatung?",
+    opts: ["Man darf keine Maßnahmen durchführen","Eingriffe werden so geplant, dass historische Substanz erhalten und nicht unnötig geschädigt wird","Es bedeutet, nur das Äußere zu schützen","Historische Substanz muss vollständig erneuert werden"],
+    a: 1,
+    expl: "Respekt vor der alten Bausubstanz bedeutet, Maßnahmen so zu planen, dass historische Strukturen und Materialien erhalten und nicht unnötig beschädigt werden."
+  },
+  {
+    cat: "Energetisches Nutzungskonzept",
+    q: "Was ist mit 'Einbeziehen von dritten Experten' im Kontext der Denkmalsanierung gemeint?",
+    opts: ["Drei unabhängige Architekten für ein Projekt engagieren","Bei Denkmälern werden Spezialisten wie Denkmalpfleger, Restauratoren und historische Bautechnikexperten hinzugezogen","Drei Energieberater gleichzeitig beauftragen","Externe Baufinanzierungsberater einbinden"],
+    a: 1,
+    expl: "Die Komplexität von Denkmalsanierungen erfordert das Einbeziehen von Drittexperten wie Denkmalpflegern, Restauratoren und Spezialisten für historische Bautechnik."
+  },
+
+  // ─── BLOCK 5: Energetische Ertüchtigung der Gebäudehülle (20 Fragen) ───
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Welche Phasen umfasst die Ausführungspraxis bei der energetischen Ertüchtigung der Gebäudehülle?",
+    opts: ["Nur Ausschreibung und Vergabe","Planung/Konzept/Vorbereitung der Umsetzung, Ausschreibung und Vergabe (Vertrag)","Nur Bauausführung","Nur Qualitätskontrolle nach Fertigstellung"],
+    a: 1,
+    expl: "Die Ausführungspraxis umfasst die Planung/Konzept/Vorbereitung der Umsetzung sowie Ausschreibung und Vergabe (Vertrag)."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Welche Bauteile der Gebäudehülle werden bei der energetischen Ertüchtigung behandelt?",
+    opts: ["Nur Fenster","Fenster, Böden und Dach","Nur das Dach","Nur die Außenwände"],
+    a: 1,
+    expl: "Die energetische Ertüchtigung der Gebäudehülle umfasst typischerweise Fenster, Böden und das Dach – neben den Außenwänden."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Was bedeutet 'Fassadenwirkung / Sonderkonstruktion' bei der energetischen Ertüchtigung?",
+    opts: ["Rein ästhetische Gestaltung der Fassade","Eine Sonderlösung, bei der die Fassadenwirkung erhalten bleibt, z.B. durch vorgehängte oder hinterlüftete Verkleidungen","Vollständige Verkleidung mit Wärmedämmverbundsystem","Nur Fensteraustausch"],
+    a: 1,
+    expl: "Fassadenwirkung bei Sonderkonstruktionen bedeutet, dass die optische Wirkung der historischen Fassade erhalten bleibt, z.B. durch spezielle hinterlüftete Systeme."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Warum ist ein Wärmedämmverbundsystem (WDVS) bei Baudenkmälern in der Regel problematisch?",
+    opts: ["Weil es zu teuer ist","Weil es die historische Fassadenoberfläche und -gliederung zerstört und denkmalrechtlich meist nicht genehmigt wird","Weil es nicht wärmedämmend ist","Weil es nur für Industriegebäude geeignet ist"],
+    a: 1,
+    expl: "Ein WDVS verändert die historische Fassadenoberfläche, -profilierung und -gliederung und ist daher bei Denkmälern in der Regel nicht zulässig."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Welches Dämmsystem ist bei Baudenkmal-Fassaden als Alternative zum WDVS typischerweise geeignet?",
+    opts: ["Polystyrol-Dämmung außen","Innendämmung mit kapillaraktiven, diffusionsoffenen Materialien wie Holzweichfaser oder Kalziumsilikat","Vakuumisolationspaneele auf der Außenseite","Kein Dämmsystem, da Denkmäler nicht gedämmt werden dürfen"],
+    a: 1,
+    expl: "Innendämmung mit kapillaraktiven, diffusionsoffenen Materialien (Holzweichfaser, Kalziumsilikat, Lehm) ist bei Baudenkmälern ein typischer Ansatz."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Was ist eine 'Vorsatzschale' und wozu dient sie bei Baudenkmälern?",
+    opts: ["Eine zusätzliche äußere Fassadenverkleidung","Eine innen angebrachte Dämm- und Verkleidungsebene, die den vorhandenen Aufbau ergänzt, ohne die Außenfassade zu verändern","Eine neue Außenwand aus Beton","Ein Schutzsystem gegen Vandalismus"],
+    a: 1,
+    expl: "Eine Vorsatzschale wird innenseitig angebracht und ergänzt die bestehende Wand mit Dämm- und Verkleidungsfunktion, ohne die schützenswerte Außenfassade zu berühren."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Welche Risiken sind bei der Innendämmung historischer Wände besonders zu beachten?",
+    opts: ["Optische Veränderungen der Innenräume","Tauwasserausfall und Durchfeuchtung im Wandquerschnitt sowie mögliche Frostschäden","Erhöhter Schallschutz","Verringerung der Raumhöhe"],
+    a: 1,
+    expl: "Innendämmung kann zu Tauwasserausfall im Wandquerschnitt führen. Eine bauphysikalisch korrekte Planung mit diffusionsoffenen Materialien ist daher unerlässlich."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Welche Eigenschaft macht kapillaraktive Dämmmaterialien für Denkmäler geeignet?",
+    opts: ["Sie sind günstiger als Mineralwolle","Sie können Feuchtigkeit kapillar transportieren und so Tauwasserprobleme durch Umverteilung entschärfen","Sie sind vollständig wasserdicht","Sie haben den niedrigsten Lambda-Wert aller Materialien"],
+    a: 1,
+    expl: "Kapillaraktive Materialien können Feuchtigkeit aktiv transportieren und so Tauwasserakkumulation im Wandquerschnitt entschärfen."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Was ist bei der Sanierung von Fenstern in Denkmälern zu beachten?",
+    opts: ["Alle Fenster müssen durch Kunststofffenster ersetzt werden","Der Erhalt oder die denkmalgerechte Ertüchtigung der historischen Fenster, ggf. durch Kastenfenster oder Vorsatzverglasungen","Fenster spielen beim Denkmal keine Rolle","Nur Einfachverglasung ist denkmaltauglich"],
+    a: 1,
+    expl: "Historische Fenster sollen nach Möglichkeit erhalten oder denkmalgerecht ertüchtigt werden, z.B. durch Kastenfenster oder innenseitige Vorsatzverglasungen."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Was ist ein Kastenfenster und welchen energetischen Vorteil bietet es?",
+    opts: ["Ein Fenster in einem Kasten verpackt zur Lagerung","Ein zweischaliges Fenster mit einem äußeren historischen und einem inneren modernen Flügel, das hohe Wärmedämmwerte bei Erhalt des Originalfensters ermöglicht","Ein modernes Kunststofffenster","Ein Fenster ohne Öffnungsmöglichkeit"],
+    a: 1,
+    expl: "Kastenfenster sind zweischalige Konstruktionen mit äußerem historischem Flügel und innerem modernen Fensterflügel. Sie erreichen gute Wärmedämmwerte bei Erhalt der historischen Substanz."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Was versteht man unter 'Ausschreibung und Vergabe' im Kontext der Ertüchtigungsmaßnahmen?",
+    opts: ["Nur die mündliche Beauftragung von Handwerkern","Die formale Beschreibung der Leistungen (Ausschreibung) und die rechtlich verbindliche Beauftragung (Vergabe/Vertrag)","Das Ausstellen von Baugenehmigungen","Die Abnahme der Bauleistungen"],
+    a: 1,
+    expl: "Ausschreibung beschreibt die Leistungen präzise; Vergabe/Vertrag ist die rechtlich verbindliche Beauftragung des ausführenden Unternehmens."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Was bedeutet 'bauphysikalisch stabil' bei der Ertüchtigung historischer Wände?",
+    opts: ["Die Wand darf sich nicht mehr bewegen","Die sanierte Wand erfüllt dauerhaft alle Anforderungen an Wärme- und Feuchteschutz ohne Schäden","Statische Stabilität im Erdbeben","Die Wand muss 500 Jahre halten"],
+    a: 1,
+    expl: "Bauphysikalisch stabil bedeutet, dass die sanierte Konstruktion dauerhaft Wärme- und Feuchteschutzanforderungen erfüllt, ohne Feuchte- oder Schimmelprobleme zu entwickeln."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Welche Funktion hat Brettsperrholz (BSP) im Wandaufbau neben der Statik?",
+    opts: ["Nur als Sichtfläche","Als luftdichte Ebene und aussteifendes Element","Als Dampfsperre aus Kunststoff","Als Schallschutzplatte"],
+    a: 1,
+    expl: "BSP übernimmt im Wandaufbau die Funktion der Luftdichtigkeitsebene und trägt zur Aussteifung der Konstruktion bei."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Was ist bei der Dachsanierung eines Baudenkmals energetisch besonders zu beachten?",
+    opts: ["Das Dach muss immer vollständig neu gebaut werden","Die Dämmung muss denkmalverträglich eingebaut werden, historische Dachstrukturen und Materialien sind zu erhalten","Das Dach darf nicht saniert werden","Nur Dachneudeckung ist erlaubt"],
+    a: 1,
+    expl: "Bei der Dachsanierung müssen historische Dachstrukturen erhalten bleiben; die Dämmung wird denkmalverträglich eingebracht."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Welche Anforderung an die Mindestwärmedämmung nach GEG gilt bei erstmaligem Einbau oder der Erneuerung von Außenbauteilen?",
+    opts: ["Es gibt keine Mindestanforderungen","Bei Erneuerung oder erstmaligem Einbau von Außenbauteilen sind die Mindestanforderungen nach GEG §11 einzuhalten, sofern keine Ausnahmen gelten","Die Anforderungen sind nur für Neubauten relevant","Die Anforderungen können immer frei gewählt werden"],
+    a: 1,
+    expl: "Nach GEG §11 sind bei Erneuerung von Außenbauteilen Mindestanforderungen einzuhalten. Für Denkmäler gibt es spezifische Ausnahmen, wenn die Einhaltung die Substanz gefährdet oder das Erscheinungsbild verändert."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Welche Aussage zu 'Schornsteinen' bei historischen Gebäuden ist für die energetische Ertüchtigung relevant?",
+    opts: ["Schornsteine haben keine Bedeutung","Schornsteine können Wärmebrücken darstellen und beeinflussen die Planung von Heizungs- und Lüftungskonzepten","Schornsteine müssen immer abgerissen werden","Schornsteine sind immer zu erhalten und dürfen nicht verändert werden"],
+    a: 1,
+    expl: "Schornsteine sind bei der Planung zu berücksichtigen: Sie können Wärmebrücken sein und sind relevant für Heizungs- und Lüftungskonzepte."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Was versteht man unter 'Fassadenprofil' im Kontext einer hinterlüfteten vorgehängten Fassade?",
+    opts: ["Ein digitales Profil der Fassadeneigenschaften","Die äußere Verkleidungsschicht, die das Erscheinungsbild bestimmt und gleichzeitig Witterungsschutz bietet","Die Stahlträger der Fassade","Den U-Wert-Berechnungspfad"],
+    a: 1,
+    expl: "Das Fassadenprofil ist die äußere Verkleidungsschicht einer hinterlüfteten vorgehängten Fassade – sie schützt vor Witterung und bestimmt das Erscheinungsbild."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Welche Aufgaben hat die Energieberatung in der Planungsphase für Ausschreibung und Vergabe?",
+    opts: ["Keine – das ist Aufgabe des Architekten","Vorbereitung von Leistungsbeschreibungen und Spezifikationen der energetischen Maßnahmen","Nur die Kostenschätzung","Nur die Genehmigungsplanung"],
+    a: 1,
+    expl: "In der Planungsphase bereitet der Energieberater Leistungsbeschreibungen für die energetischen Maßnahmen vor, die Grundlage für Ausschreibung und Vergabe sind."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Was bedeutet 'Luftdichtigkeit' bei der Sanierung und warum ist sie wichtig?",
+    opts: ["Das Gebäude muss vollständig luftdicht sein, ohne jede Lüftung","Eine möglichst luftdichte Gebäudehülle reduziert unkontrollierte Wärmeverluste durch Fugen und Risse – Lüftung erfolgt dann kontrolliert","Nur Fenster und Türen müssen luftdicht sein","Luftdichtigkeit ist nur bei Passivhäusern relevant"],
+    a: 1,
+    expl: "Luftdichtigkeit reduziert unkontrollierte Wärmeverluste. Lüftung erfolgt dann bewusst und kontrolliert, was Energie und Komfort verbessert."
+  },
+  {
+    cat: "Gebäudehülle & Ausführung",
+    q: "Wie wird ein historisches Gebäude in der Ausführungspraxis auf die bauphysikalischen Sanierungsschritte vorbereitet?",
+    opts: ["Durch sofortigen Abriss aller schadhaften Teile","Durch gründliche Bestandsaufnahme, Schadensdiagnose und Planung von Maßnahmen, bevor mit der Ausführung begonnen wird","Durch direkte Vergabe ohne Planung","Durch Abwarten bis alle Schäden sichtbar sind"],
+    a: 1,
+    expl: "Vor der Ausführung steht eine gründliche Bestandsaufnahme und Schadensdiagnose; erst danach werden Maßnahmen geplant und ausgeschrieben."
+  },
+
+  // ─── BLOCK 6: Konzepterstellung (13 Fragen) ───
+  {
+    cat: "Konzepterstellung",
+    q: "Welche DIN-Normen sind für die Konzepterstellung im Bereich Energieberatung für Baudenkmäler besonders relevant?",
+    opts: ["DIN EN 12831 und DIN 4109","DIN 18983 und DIN 10098","DIN EN 15978 und DIN 4108","DIN 276 und DIN 18960"],
+    a: 1,
+    expl: "Für die Konzepterstellung sind DIN 18983 und DIN 10098 von Bedeutung."
+  },
+  {
+    cat: "Konzepterstellung",
+    q: "Was umfasst der 'Aufbau und die Struktur von Konzepten' bei der Energieberatung für Denkmäler?",
+    opts: ["Nur Baukostenschätzungen","Eine systematische Darstellung des Ist-Zustands, der Maßnahmenempfehlungen und der zu erwartenden Einsparpotenziale","Nur bautechnische Zeichnungen","Nur Fördermittellisten"],
+    a: 1,
+    expl: "Ein vollständiges Konzept umfasst Ist-Zustand, Maßnahmenempfehlungen und erwartete Einsparpotenziale, strukturiert und verständlich aufbereitet."
+  },
+  {
+    cat: "Konzepterstellung",
+    q: "Welche Aspekte des Denkmalschutzes sind bei der Konzepterstellung zu berücksichtigen?",
+    opts: ["Nur die Fassadenfarbe","Denkmalpflegerische Aspekte: Erhalt historischer Substanz, Reversibilität von Maßnahmen, Abstimmung mit der Denkmalbehörde","Nur die Kosten der Maßnahmen","Nur baustatische Aspekte"],
+    a: 1,
+    expl: "Denkmalpflegerische Aspekte umfassen den Substanzerhalt, die Reversibilität von Maßnahmen und die Abstimmung mit der zuständigen Denkmalbehörde."
+  },
+  {
+    cat: "Konzepterstellung",
+    q: "Was bedeutet 'Reversibilität' von Sanierungsmaßnahmen bei Baudenkmälern?",
+    opts: ["Die Maßnahme kann rückgängig gemacht werden, ohne die historische Substanz dauerhaft zu beschädigen","Die Maßnahme ist sehr teuer","Die Maßnahme muss jährlich erneuert werden","Die Maßnahme ist nur mit Genehmigung durchführbar"],
+    a: 0,
+    expl: "Reversibilität bedeutet, dass eine Maßnahme rückgängig gemacht werden kann, ohne die historische Substanz dauerhaft zu schädigen – ein zentrales Prinzip der Denkmalpflege."
+  },
+  {
+    cat: "Konzepterstellung",
+    q: "Wer ist bei der Konzepterstellung für ein Baudenkmal typischerweise einzubeziehen?",
+    opts: ["Nur der Eigentümer","Eigentümer, Energieberater, Architekt und die zuständige Denkmalbehörde","Nur der Energieversorger","Nur die Baubehörde"],
+    a: 1,
+    expl: "Bei Baudenkmälern sind neben Eigentümer und Energieberater auch Architekt und Denkmalbehörde einzubeziehen."
+  },
+  {
+    cat: "Konzepterstellung",
+    q: "Was ist ein 'Sanierungsfahrplan' im Kontext der Energieberatung?",
+    opts: ["Ein Zeitplan für Reinigungsarbeiten","Eine strukturierte Abfolge von Sanierungsmaßnahmen über mehrere Jahre, die schrittweise zur Verbesserung der Energieeffizienz führt","Ein Linienfahrplan der öffentlichen Verkehrsmittel","Nur ein Kostenplan"],
+    a: 1,
+    expl: "Ein Sanierungsfahrplan legt eine zeitlich strukturierte Abfolge von Maßnahmen fest, die schrittweise zur Verbesserung der Energieeffizienz führen."
+  },
+  {
+    cat: "Konzepterstellung",
+    q: "Warum ist es wichtig, Maßnahmen im Konzept nach Priorität zu ordnen?",
+    opts: ["Um die Reihenfolge für das Denkmalpflegeamt vorzugeben","Um Eigentümern eine klare Handlungsempfehlung zu geben, welche Maßnahmen zuerst umgesetzt werden sollten, um den größten Nutzen zu erzielen","Nur für Fördermittelanträge","Prioritäten spielen keine Rolle"],
+    a: 1,
+    expl: "Eine Priorisierung der Maßnahmen hilft dem Eigentümer, den größten Nutzen zuerst zu erzielen und das Budget sinnvoll einzusetzen."
+  },
+  {
+    cat: "Konzepterstellung",
+    q: "Welche Fördermöglichkeiten können bei Campus-EW im Bereich Energieberatung genutzt werden?",
+    opts: ["Keine","Kurse und Lehrgänge sind u.U. förderfähig; es gibt individuelle Förder- und Bildungsfreistellungsmöglichkeiten je nach Bundesland","Nur BAFA-Förderung","Nur für öffentliche Einrichtungen"],
+    a: 1,
+    expl: "Kurse und Lehrgänge bei Campus-EW sind unter Umständen förderfähig; individuelle Beratung zu Fördermöglichkeiten und Bildungsfreistellungen in den Bundesländern wird angeboten."
+  },
+  {
+    cat: "Konzepterstellung",
+    q: "Was versteht man unter 'Einbeziehung Dritter Experten' bei der Konzepterstellung für Denkmäler?",
+    opts: ["Drei Gutachter für das gleiche Problem","Die Hinzuziehung von Spezialisten wie Restauratoren, Denkmalpflegern, Bauforschern für spezifische Fragestellungen","Nur externe Finanzierer","Immer externe Architekten"],
+    a: 1,
+    expl: "Dritte Experten wie Restauratoren, Denkmalpfleger und Bauforscher werden bei speziellen Fragestellungen hinzugezogen, die über das normale Beratungsfeld hinausgehen."
+  },
+  {
+    cat: "Konzepterstellung",
+    q: "Was wird im Konzept unter 'Einsparpotenziale' verstanden?",
+    opts: ["Nur die finanziellen Ersparnisse","Die quantifizierte Reduktion des Energieverbrauchs oder der CO₂-Emissionen durch die empfohlenen Maßnahmen","Zeitersparnis bei der Sanierung","Einsparung von Baumaterialien"],
+    a: 1,
+    expl: "Einsparpotenziale beschreiben die zu erwartende Reduktion von Energieverbrauch und CO₂-Emissionen durch die empfohlenen Maßnahmen."
+  },
+  {
+    cat: "Konzepterstellung",
+    q: "Welche Fortbildungspunkte können durch den Lehrgang 'Energieberatung für Baudenkmale' erworben werden?",
+    opts: ["Keine, da es sich um keinen staatlichen Lehrgang handelt","Wertvolle Fortbildungspunkte für die Verlängerung der Eintragung in die EEE-Liste","Punkte für die IHK-Prüfung","Nur Punkte für die Architektenkammer"],
+    a: 1,
+    expl: "Der Lehrgang sichert Fortbildungspunkte für die Verlängerung der Eintragung in die EEE-Liste (Energieeffizienz-Experten-Liste)."
+  },
+  {
+    cat: "Konzepterstellung",
+    q: "Was ist der Block 4 des Lehrgangs 'Energieberatung für Baudenkmale – Wohngebäude' und wie lang dauert er?",
+    opts: ["Block 1, 2 Tage","Block 4, 2 Tage und 16 UE, gehalten von Stephan Rothe","Block 3, 3 Tage","Block 2, 3 Tage"],
+    a: 1,
+    expl: "Block 4 dauert 2 Tage mit 16 Unterrichtseinheiten und wird von Stephan Rothe als Referent gehalten."
+  },
+  {
+    cat: "Konzepterstellung",
+    q: "Welche Fortbildungen bietet Campus-EW im Bereich Energieberatung neben dem Denkmallehrgang an?",
+    opts: ["Keine weiteren Angebote","Wärmebrücken (Nachweise & Berechnung), Lüftungskonzepte (WG & NWG) und LCA-Bilanzierung","Nur Photovoltaik-Schulungen","Nur Brandschutz"],
+    a: 1,
+    expl: "Campus-EW bietet u.a. Wärmebrücken-Nachweise & Berechnung, Lüftungskonzepte (WG & NWG) und LCA-Bilanzierung als ergänzende Fortbildungen an."
+  },
+
+  // ─── BLOCK 7: Beratungsbericht (12 Fragen) ───
+  {
+    cat: "Beratungsbericht",
+    q: "Was sind die Kernelemente des Aufbaus eines Beratungsberichts für ein Baudenkmal?",
+    opts: ["Nur Fotos des Gebäudes","Aufbau und Struktur des Berichts, denkmalpflegerische Aspekte sowie Darstellung der Maßnahmenempfehlungen","Nur Kostenvoranschläge","Nur rechtliche Grundlagen"],
+    a: 1,
+    expl: "Ein Beratungsbericht für Baudenkmäler enthält: strukturierten Aufbau, denkmalpflegerische Aspekte und klare Maßnahmenempfehlungen."
+  },
+  {
+    cat: "Beratungsbericht",
+    q: "Welche denkmalpflegerischen Aspekte sind in einem Beratungsbericht besonders darzustellen?",
+    opts: ["Nur der Marktwert des Gebäudes","Historische Bedeutung, schützenswerte Substanz, Auflagen der Denkmalbehörde und Einschränkungen bei Maßnahmen","Nur aktuelle Bauschäden","Nur die Energiebilanz"],
+    a: 1,
+    expl: "Denkmalpflegerische Aspekte umfassen die historische Bedeutung, schützenswerte Substanz, Auflagen der Behörde und daraus folgende Einschränkungen bei Maßnahmen."
+  },
+  {
+    cat: "Beratungsbericht",
+    q: "Was ist der Unterschied zwischen einem Beratungsbericht und einem Energieausweis?",
+    opts: ["Es gibt keinen Unterschied","Ein Beratungsbericht enthält detaillierte Maßnahmenempfehlungen und Analysen, ein Energieausweis ist ein standardisiertes Kurzformat-Dokument","Nur der Beratungsbericht ist gesetzlich vorgeschrieben","Nur der Energieausweis enthält Maßnahmen"],
+    a: 1,
+    expl: "Der Beratungsbericht ist ein detailliertes Analyse- und Empfehlungsdokument; der Energieausweis ist ein standardisiertes Kurzformat für den Energiebedarf."
+  },
+  {
+    cat: "Beratungsbericht",
+    q: "Wem gegenüber wird der Beratungsbericht typischerweise erstellt und präsentiert?",
+    opts: ["Nur der Denkmalbehörde","Dem Eigentümer/Auftraggeber; bei Bedarf auch der Denkmalbehörde und anderen Beteiligten","Nur dem Finanzamt","Nur dem Energieversorger"],
+    a: 1,
+    expl: "Der Beratungsbericht wird primär für den Eigentümer/Auftraggeber erstellt; er kann auch für die Denkmalbehörde und andere Beteiligte relevant sein."
+  },
+  {
+    cat: "Beratungsbericht",
+    q: "Welche Norm ist im Beratungsbericht im Zusammenhang mit Energieberatungsberichten relevant?",
+    opts: ["DIN EN 12831","DIN 18983 und DIN 10098","DIN 4108-2","DIN EN 15978"],
+    a: 1,
+    expl: "DIN 18983 und DIN 10098 sind für die Konzepterstellung und den Beratungsbericht im Bereich Baudenkmal-Energieberatung relevant."
+  },
+  {
+    cat: "Beratungsbericht",
+    q: "Welcher Träger kooperiert bei dem Lehrgang 'Energieberatung für Baudenkmale' mit Campus-EW?",
+    opts: ["Der Deutsche Verband Flüssiggas","Die Stiftung BauKulturerbe","Die Deutsche Energie-Agentur dena","Der Bundesverband der Energie- und Wasserwirtschaft"],
+    a: 1,
+    expl: "Der Lehrgang wird von Campus-EW GmbH in Kooperation mit der Stiftung BauKulturerbe durchgeführt."
+  },
+  {
+    cat: "Beratungsbericht",
+    q: "Wo hat Campus-EW GmbH seinen Sitz?",
+    opts: ["München","Köln","Aachen","Hamburg"],
+    a: 2,
+    expl: "Campus-EW GmbH hat seinen Sitz in der Sonnenscheinstraße 78, 52078 Aachen."
+  },
+  {
+    cat: "Beratungsbericht",
+    q: "Wer ist der Referent für Block 4 des Lehrgangs 'Energieberatung für Baudenkmale – Wohngebäude'?",
+    opts: ["Prof. Dr. Michael Braun","Stephan Rothe","Sabine Müller","Klaus Weber"],
+    a: 1,
+    expl: "Block 4 des Lehrgangs wird von Stephan Rothe referiert, der auch für www.adbarchitektur.de tätig ist."
+  },
+  {
+    cat: "Beratungsbericht",
+    q: "Welche EEE-Liste ist für Energieberater relevant?",
+    opts: ["Europäische Energieeffizienz-Experten-Liste","Die Energieeffizienz-Experten-Liste für Bundesförderprogramme (ehemals Expertenliste der dena)","Eine interne Liste der Handwerkskammer","Die Liste der Schornsteinfeger"],
+    a: 1,
+    expl: "Die EEE-Liste (Energieeffizienz-Experten-Liste) ist die nationale Datenbank für qualifizierte Energieberater, die für Bundesförderprogramme (BAFA, KfW) zugelassen sind."
+  },
+  {
+    cat: "Beratungsbericht",
+    q: "Was beinhaltet der Lehrgang zur 'Wärmeplanung' nach dem Hinweis im Foliensatz?",
+    opts: ["Nur Fernwärme-Grundlagen","Lernen, Konzipieren, Umsetzen von Wärmeplanung; wahlweise mit oder ohne Zertifizierung der Hochschule Worms","Nur Heizungstechnik","Nur Solarenergie"],
+    a: 1,
+    expl: "Der Lehrgang 'Manager für Wärmeplanung' umfasst Basiskurse und Vertiefungskurse mit einer Zertifizierung der Hochschule Worms, wahlweise mit oder ohne Abschluss."
+  },
+  {
+    cat: "Beratungsbericht",
+    q: "Was bedeutet 'Beratungsbericht' im Kontext des Abschlusses einer Energieberatung?",
+    opts: ["Ein kurzer Bericht ohne Empfehlungen","Ein umfassendes Dokument, das Ist-Zustand, Analysen, Maßnahmenempfehlungen und denkmalpflegerische Aspekte für den Auftraggeber zusammenfasst","Nur eine Kostenliste","Nur der Energieausweis"],
+    a: 1,
+    expl: "Der Beratungsbericht fasst Ist-Zustand, Analysen, Maßnahmenempfehlungen und denkmalpflegerische Aspekte abschließend für den Auftraggeber zusammen."
+  },
+  {
+    cat: "Beratungsbericht",
+    q: "Mit welcher Wärmepumpen-Schulung nach VDI 4645 wirbt Campus-EW?",
+    opts: ["Manager für Wärmeplanung","Wärmepumpen-Experte nach VDI 4645 – In 2 Tagen zum gefragten Wärmepumpen-Experten, mit BAFA-Förderung","Energieberater für Nichtwohngebäude","Gebäude-Energieberater"],
+    a: 1,
+    expl: "Campus-EW bietet eine Wärmepumpenschulung nach VDI 4645 an: 'In 2 Tagen zum gefragten Wärmepumpen-Experten', mit möglicher BAFA-Förderung bis 390 €/Teilnehmer und Schulungstag."
+  },
+
+  // ─── BLOCK 8: Bauphysik & Normen (10 Fragen) ───
+  {
+    cat: "Bauphysik & Normen",
+    q: "Was ist ein U-Wert und wofür wird er verwendet?",
+    opts: ["Ein Maß für die Luftdurchlässigkeit eines Bauteils","Ein Wärmedurchgangskoeffizient [W/(m²·K)], der den Wärmestrom durch ein Bauteil bei einem Kelvin Temperaturdifferenz beschreibt","Ein Maß für die Schallschutzklasse","Ein Brandschutzklassifikationswert"],
+    a: 1,
+    expl: "Der U-Wert (Wärmedurchgangskoeffizient) in W/(m²·K) beschreibt den Wärmestrom durch ein Bauteil pro Grad Temperaturdifferenz – ein zentraler Kennwert für die Wärmedämmung."
+  },
+  {
+    cat: "Bauphysik & Normen",
+    q: "Was beschreibt der Begriff 'Dampfdiffusionswiderstand (μ-Wert)'?",
+    opts: ["Den Widerstand eines Materials gegen Druckwasser","Den Widerstand eines Baustoffs gegen den Durchtritt von Wasserdampf im Vergleich zu Luft (dimensionslos)","Den elektrischen Widerstand von Baumaterialien","Den Schallschutzwert von Wänden"],
+    a: 1,
+    expl: "Der μ-Wert (Dampfdiffusionswiderstandszahl) gibt an, wie viel besser ein Baustoff Wasserdampf zurückhält als ruhende Luft. Hohe Werte = dampfbremsend."
+  },
+  {
+    cat: "Bauphysik & Normen",
+    q: "Was versteht man unter 'Kapillaraktivität' eines Baustoffs?",
+    opts: ["Die Fähigkeit, elektrische Energie zu speichern","Die Fähigkeit eines Materials, Feuchtigkeit durch Kapillarkräfte aufzunehmen und weiterzuleiten","Die Fähigkeit, Schall zu absorbieren","Die Wärmeleitfähigkeit bei hohen Temperaturen"],
+    a: 1,
+    expl: "Kapillaraktivität bezeichnet die Fähigkeit eines Baustoffs, Feuchtigkeit durch Kapillarkräfte aufzunehmen und zu transportieren – wichtig für feuchteregulierendes Verhalten."
+  },
+  {
+    cat: "Bauphysik & Normen",
+    q: "Was ist der Taupunkt?",
+    opts: ["Der Punkt maximaler Sonnenenergie im Jahresverlauf","Die Temperatur, bei der die Luft mit Wasserdampf gesättigt ist und Tau- oder Kondenswasser ausfällt","Die Mindesttemperatur im Keller","Der Einfrierungspunkt von Leitungswasser"],
+    a: 1,
+    expl: "Der Taupunkt ist die Temperatur, bei der Luft vollständig mit Wasserdampf gesättigt ist und Kondensation einsetzt – relevant für die Planung von Wandkonstruktionen."
+  },
+  {
+    cat: "Bauphysik & Normen",
+    q: "Welches Ziel verfolgt der Denkmalschutz bei Sanierungsmaßnahmen gegenüber rein energetischen Optimierungen?",
+    opts: ["Den Energieverbrauch zu maximieren","Den Erhalt historischer Substanz, des Erscheinungsbildes und der Authentizität zu gewährleisten, auch wenn dies energetische Einschränkungen bedeutet","Ausschließlich Kostensenkung","Nur die Wohnkomfortsteigerung"],
+    a: 1,
+    expl: "Denkmalschutz stellt den Erhalt historischer Substanz, Erscheinung und Authentizität in den Vordergrund – dies kann energetische Optimierungen einschränken."
+  },
+  {
+    cat: "Bauphysik & Normen",
+    q: "Was regelt das GEG (Gebäudeenergiegesetz)?",
+    opts: ["Nur den Wärmeschutz von Neubauten","Die energetischen Anforderungen an Gebäude (Neubau und Bestand), Energieausweise und den Einsatz erneuerbarer Energien","Nur Heizungsanlagen","Nur Förderrichtlinien"],
+    a: 1,
+    expl: "Das GEG regelt die energetischen Anforderungen an Gebäude (Neubau und Bestand), Energieausweise und den Einsatz erneuerbarer Energien."
+  },
+  {
+    cat: "Bauphysik & Normen",
+    q: "Was versteht man unter der 'Wärmeleitfähigkeit' (Lambda, λ) eines Baustoffs?",
+    opts: ["Die Fähigkeit des Materials, Wärme zu speichern","Die Eigenschaft, wie gut ein Material Wärme leitet – angegeben in W/(m·K); niedrige Werte bedeuten gute Dämmwirkung","Die maximale Temperatur, die ein Material aushält","Den Brandschutzwert"],
+    a: 1,
+    expl: "Die Wärmeleitfähigkeit λ [W/(m·K)] gibt an, wie gut ein Material Wärme leitet. Niedrige Werte = gute Dämmmaterialien."
+  },
+  {
+    cat: "Bauphysik & Normen",
+    q: "Was ist ein Blower-Door-Test?",
+    opts: ["Ein Test für die Türqualität","Ein Messverfahren zur Bestimmung der Luftdurchlässigkeit der Gebäudehülle","Ein Schallschutztest","Ein Brandschutztest"],
+    a: 1,
+    expl: "Der Blower-Door-Test misst die Luftdurchlässigkeit der Gebäudehülle unter Druckdifferenz und dient der Auffindung von Undichtigkeiten."
+  },
+  {
+    cat: "Bauphysik & Normen",
+    q: "Was bedeutet 'diffusionsoffen' bei einem Wandaufbau?",
+    opts: ["Die Wand ist wasserdurchlässig","Wasserdampf kann ungehindert durch die Bauteilschichten diffundieren, ohne Stauung und Kondensation im Innern","Die Wand hat große Öffnungen","Die Wand besteht aus offenporigem Schaum"],
+    a: 1,
+    expl: "Diffusionsoffene Aufbauten erlauben Wasserdampf, ungehindert durch alle Schichten zu diffundieren. So werden Feuchteansammlungen im Wandinneren verhindert."
+  },
+  {
+    cat: "Bauphysik & Normen",
+    q: "Was ist ein 'Wärmedämmverbundsystem' (WDVS) und warum ist es bei Denkmälern problematisch?",
+    opts: ["Ein innenseitiges Dämmsystem – ideal für Denkmäler","Ein außenseitig aufgeklebtes Dämmsystem aus Dämm- und Putzschicht, das bei Denkmälern die historische Fassadenoberfläche und -gliederung zerstört","Ein Heizsystem auf Wärmepumpenbasis","Ein Belüftungssystem"],
+    a: 1,
+    expl: "Das WDVS (Vollwärmeschutz) wird außen aufgebracht und verändert Fassadenstruktur, -profile und Erscheinungsbild – bei Baudenkmälern ist es daher in der Regel nicht zulässig."
+  }
+];
+
+// ─── State ───
+let current = 0;
+let score = 0;
+let answered = false;
+let shuffled = [];
+
+// Per-category tracking
+const catStats = {};
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function initQuiz() {
+  shuffled = shuffle(questions);
+  current = 0;
+  score = 0;
+  answered = false;
+  Object.keys(catStats).forEach(k => delete catStats[k]);
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  answered = false;
+  const q = shuffled[current];
+
+  document.getElementById('progress-bar').style.width = (current / shuffled.length * 100) + '%';
+  document.getElementById('progress-text').textContent = `Frage ${current + 1} von ${shuffled.length}`;
+  document.getElementById('score-badge').textContent = `✓ ${score}`;
+  document.getElementById('category-tag').textContent = q.cat;
+  document.getElementById('question-number').textContent = `Frage ${current + 1}`;
+  document.getElementById('question-text').textContent = q.q;
+
+  const optDiv = document.getElementById('options');
+  optDiv.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    optDiv.appendChild(btn);
+  });
+
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').innerHTML = '';
+  document.getElementById('next-btn').style.display = 'none';
+}
+
+function selectAnswer(chosen) {
+  if (answered) return;
+  answered = true;
+
+  const q = shuffled[current];
+  const buttons = document.querySelectorAll('.option-btn');
+  const isCorrect = (chosen === q.a);
+
+  // Update category stats
+  if (!catStats[q.cat]) catStats[q.cat] = { total: 0, correct: 0 };
+  catStats[q.cat].total++;
+  if (isCorrect) {
+    catStats[q.cat].correct++;
+    score++;
+  }
+
+  buttons.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.a) btn.classList.add(chosen === i ? 'correct' : 'reveal');
+    else if (i === chosen && !isCorrect) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.innerHTML = `<span class="feedback-icon">${isCorrect ? '✅' : '❌'}</span> ${isCorrect ? '<strong>Richtig!</strong> ' : '<strong>Leider falsch.</strong> '}${q.expl}`;
+  fb.className = 'feedback ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
+
+  document.getElementById('score-badge').textContent = `✓ ${score}`;
+  document.getElementById('next-btn').style.display = 'block';
+
+  if (current === shuffled.length - 1) {
+    document.getElementById('next-btn').textContent = 'Ergebnis anzeigen →';
+  }
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= shuffled.length) {
+    showResult();
+  } else {
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function showResult() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'block';
+  document.getElementById('progress-bar').style.width = '100%';
+  document.getElementById('progress-text').textContent = 'Abgeschlossen!';
+  document.getElementById('score-badge').textContent = `✓ ${score}`;
+
+  const pct = Math.round(score / shuffled.length * 100);
+  document.getElementById('result-score').textContent = `${score} / ${shuffled.length}`;
+
+  let icon, grade, text;
+  if (pct >= 90) { icon = '🏆'; grade = 'Sehr gut'; text = 'Hervorragende Leistung! Sie beherrschen das Thema sehr sicher.'; }
+  else if (pct >= 75) { icon = '🥇'; grade = 'Gut'; text = 'Sehr gutes Ergebnis! Nur noch wenige Details zu festigen.'; }
+  else if (pct >= 60) { icon = '👍'; grade = 'Befriedigend'; text = 'Solides Ergebnis. Einige Bereiche sind noch zu vertiefen.'; }
+  else if (pct >= 45) { icon = '📚'; grade = 'Ausreichend'; text = 'Grundlagenwissen vorhanden. Bitte die markierten Themen wiederholen.'; }
+  else { icon = '📖'; grade = 'Nicht bestanden'; text = 'Bitte den Lernstoff erneut durcharbeiten und das Quiz wiederholen.'; }
+
+  document.getElementById('result-icon').textContent = icon;
+  document.getElementById('result-grade').textContent = `${pct}% – ${grade}`;
+  document.getElementById('result-text').textContent = text;
+
+  // Category breakdown
+  const statsDiv = document.getElementById('category-stats');
+  let html = '<h3>Ergebnis nach Themenbereich</h3>';
+  Object.entries(catStats).forEach(([cat, s]) => {
+    const p = Math.round(s.correct / s.total * 100);
+    html += `
+      <div class="cat-row">
+        <span class="cat-name">${cat}</span>
+        <div class="cat-bar-wrap"><div class="cat-bar" style="width:${p}%"></div></div>
+        <span class="cat-num">${s.correct}/${s.total}</span>
+      </div>`;
+  });
+  statsDiv.innerHTML = html;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restartQuiz() {
+  initQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Start
+initQuiz();
+</script>
+</body>
+</html>
